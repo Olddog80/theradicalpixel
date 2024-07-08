@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Radical Pixel</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(1000, 1px);
+            grid-template-rows: repeat(1000, 1px);
+        }
+        .pixel {
+            width: 1px;
+            height: 1px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid">
+        <script>
+            for(let i = 0; i < 1000000; i++) {
+                document.write('<a href="#" class="pixel"></a>');
+            }
+        </script>
+    </div>
+</body>
+</html>
