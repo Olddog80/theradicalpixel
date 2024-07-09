@@ -23,6 +23,9 @@
     <h1>The Radical Pixel</h1>
     <div class="grid" id="grid"></div>
 
+    <!-- Incluir Web3.js -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.4/dist/web3.min.js"></script>
+
     <script>
         const grid = document.getElementById('grid');
 
@@ -30,10 +33,37 @@
             const pixel = document.createElement('div');
             pixel.classList.add('pixel');
             pixel.addEventListener('click', () => {
-                const currentColor = pixel.style.backgroundColor;
-                pixel.style.backgroundColor = currentColor === 'black' ? 'white' : 'black';
+                if (confirm('Do you want to buy this pixel?')) {
+                    // Aquí agregarás la lógica para la transacción de Ethereum
+                    buyPixel(pixel);
+                }
             });
             grid.appendChild(pixel);
+        }
+
+        async function buyPixel(pixel) {
+            if (typeof window.ethereum !== 'undefined') {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.enable();
+                    const accounts = await web3.eth.getAccounts();
+                    const from = accounts[0];
+                    const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
+
+                    const transaction = await web3.eth.sendTransaction({
+                        from,
+                        to: 'DIRECCION_DE_TU_CONTRATO_O_TU_DIRECCION_ETHEREUM',
+                        value
+                    });
+
+                    pixel.style.backgroundColor = 'black'; // Marcar el pixel como comprado
+                    console.log('Transaction successful:', transaction);
+                } catch (error) {
+                    console.error('Transaction failed:', error);
+                }
+            } else {
+                alert('MetaMask is not installed. Please install MetaMask to buy pixels.');
+            }
         }
     </script>
 </body>
