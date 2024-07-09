@@ -13,7 +13,6 @@
         .pixel {
             width: 1px;
             height: 1px;
-            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -21,7 +20,9 @@
     <div class="grid">
         <script>
             for(let i = 0; i < 1000000; i++) {
-                document.write('<a href="#" class="pixel"></a>');
+                var pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                document.querySelector('.grid').appendChild(pixel);
             }
         </script>
     </div>
