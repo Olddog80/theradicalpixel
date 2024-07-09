@@ -92,12 +92,14 @@
 
                     status.innerText = 'Transaction in progress...';
 
+                    // Enviar transacción a Ethereum
                     var transaction = await web3.eth.sendTransaction({
                         from,
                         to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D', // Tu dirección de Ethereum
                         value
                     });
 
+                    // Cambiar el color del pixel
                     pixel.style.backgroundColor = color; // Marcar el pixel como comprado
 
                     // Guardar el estado del pixel en Firestore
@@ -109,10 +111,12 @@
                     status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
                 } catch (error) {
+                    // Manejar el error si el usuario rechaza la transacción
                     if (error.code === 4001) {
                         alert('Transaction rejected by user.');
                         status.innerText = 'Transaction rejected by user.';
                     } else {
+                        // Manejar otros errores de transacción
                         console.error('Transaction failed:', error);
                         alert('Transaction failed. See console for details.');
                         status.innerText = 'Transaction failed';
