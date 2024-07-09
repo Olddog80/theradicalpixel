@@ -85,9 +85,9 @@
         }
 
         async function buyPixel(pixel, color) {
-            try {
-                const provider = await detectEthereumProvider();
-                if (provider) {
+            const provider = await detectEthereumProvider();
+            if (provider) {
+                try {
                     const web3 = new Web3(provider);
                     await provider.request({ method: 'eth_requestAccounts' });
                     const accounts = await web3.eth.getAccounts();
@@ -112,20 +112,20 @@
 
                     status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
-                } else {
-                    console.error('No Ethereum provider detected');
-                    alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
-                    status.innerText = 'No Ethereum wallet detected';
+                } catch (error) {
+                    if (error.code === 4001) {
+                        alert('Transaction rejected by user.');
+                        status.innerText = 'Transaction rejected by user.';
+                    } else {
+                        console.error('Transaction failed:', error);
+                        alert('Transaction failed. See console for details.');
+                        status.innerText = 'Transaction failed';
+                    }
                 }
-            } catch (error) {
-                if (error.code === 4001) {
-                    alert('Transaction rejected by user.');
-                    status.innerText = 'Transaction rejected by user.';
-                } else {
-                    console.error('Transaction failed:', error);
-                    alert('Transaction failed. See console for details.');
-                    status.innerText = 'Transaction failed';
-                }
+            } else {
+                console.error('No Ethereum provider detected');
+                alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
+                status.innerText = 'No Ethereum wallet detected';
             }
         }
 
