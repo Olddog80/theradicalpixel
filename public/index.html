@@ -113,6 +113,7 @@
                     status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
                 } else {
+                    console.error('No Ethereum provider detected');
                     alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
                     status.innerText = 'No Ethereum wallet detected';
                 }
@@ -130,13 +131,27 @@
 
         async function detectEthereumProvider() {
             if (window.ethereum) {
+                console.log('Ethereum provider detected: window.ethereum');
                 return window.ethereum;
-            }
-            if (window.web3 && window.web3.currentProvider) {
+            } else if (window.web3 && window.web3.currentProvider) {
+                console.log('Ethereum provider detected: window.web3.currentProvider');
                 return window.web3.currentProvider;
+            } else {
+                console.log('No Ethereum provider detected');
+                return null;
             }
-            return null;
         }
+
+        // Verificar si hay un proveedor Ethereum disponible al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const provider = await detectEthereumProvider();
+            if (provider) {
+                console.log('Ethereum provider detected on page load');
+            } else {
+                console.error('No Ethereum provider detected on page load');
+                status.innerText = 'No Ethereum wallet detected. Please install MetaMask or another wallet.';
+            }
+        });
     </script>
 </body>
 </html>
