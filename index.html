@@ -33,7 +33,7 @@
             const pixel = document.createElement('div');
             pixel.classList.add('pixel');
             pixel.addEventListener('click', () => {
-                if (confirm('Do you want to buy this pixel?')) {
+                if (confirm('Do you want to buy this pixel for 0.01 ETH?')) {
                     // Aquí agregarás la lógica para la transacción de Ethereum
                     buyPixel(pixel);
                 }
@@ -52,14 +52,19 @@
 
                     const transaction = await web3.eth.sendTransaction({
                         from,
-                        to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D',
+                        to: 'DIRECCION_DE_TU_CONTRATO_O_TU_DIRECCION_ETHEREUM',
                         value
                     });
 
                     pixel.style.backgroundColor = 'black'; // Marcar el pixel como comprado
                     console.log('Transaction successful:', transaction);
                 } catch (error) {
-                    console.error('Transaction failed:', error);
+                    if (error.code === 4001) {
+                        alert('Transaction rejected by user.');
+                    } else {
+                        console.error('Transaction failed:', error);
+                        alert('Transaction failed. See console for details.');
+                    }
                 }
             } else {
                 alert('MetaMask is not installed. Please install MetaMask to buy pixels.');
