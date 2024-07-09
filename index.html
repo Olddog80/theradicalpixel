@@ -17,10 +17,19 @@
             background-color: #fff;
             border: 1px solid #ddd;
         }
+        #status {
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        #color-picker {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <h1>The Radical Pixel</h1>
+    <div id="status">Ready</div>
+    <input type="color" id="color-picker" value="#000000">
     <div class="grid" id="grid"></div>
 
     <!-- Incluir Firebase -->
@@ -45,6 +54,8 @@
         const db = firebase.firestore();
 
         const grid = document.getElementById('grid');
+        const status = document.getElementById('status');
+        const colorPicker = document.getElementById('color-picker');
 
         // Cargar el estado inicial de los píxeles
         db.collection("pixels").get().then((querySnapshot) => {
@@ -64,13 +75,13 @@
             pixel.setAttribute('data-id', i);
             pixel.addEventListener('click', () => {
                 if (confirm('Do you want to buy this pixel for 0.01 ETH?')) {
-                    buyPixel(pixel);
+                    buyPixel(pixel, colorPicker.value);
                 }
             });
             grid.appendChild(pixel);
         }
 
-        async function buyPixel(pixel) {
+        async function buyPixel(pixel, color) {
             if (typeof window.ethereum !== 'undefined') {
                 const web3 = new Web3(window.ethereum);
                 try {
@@ -79,20 +90,23 @@
                     const from = accounts[0];
                     const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
 
+                    status.innerText = 'Transaction in progress...';
+
                     const transaction = await web3.eth.sendTransaction({
                         from,
                         to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D', // Tu dirección de Ethereum
                         value
                     });
 
-                    pixel.style.backgroundColor = 'black'; // Marcar el pixel como comprado
+                    pixel.style.backgroundColor = color; // Marcar el pixel como comprado
 
                     // Guardar el estado del pixel en Firestore
                     await db.collection("pixels").doc(pixel.getAttribute('data-id')).set({
-                        color: 'black',
+                        color: color,
                         owner: from
                     });
 
+                    status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
                 } catch (error) {
                     if (error.code === 4001) {
@@ -101,9 +115,11 @@
                         console.error('Transaction failed:', error);
                         alert('Transaction failed. See console for details.');
                     }
+                    status.innerText = 'Transaction failed';
                 }
             } else {
                 alert('MetaMask is not installed. Please install MetaMask to buy pixels.');
+                status.innerText = 'MetaMask is not installed';
             }
         }
     </script>
