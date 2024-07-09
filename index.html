@@ -33,13 +33,13 @@
     <div class="grid" id="grid"></div>
 
     <!-- Incluir Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.4/dist/web3.min.js"></script>
 
     <script>
         // Configuración de Firebase
-        const firebaseConfig = {
+        var firebaseConfig = {
             apiKey: "AIzaSyBZ3PkYz4fA8Rof6ST6RNG0ddvzGMmBh60",
             authDomain: "the-radical-pixel.firebaseapp.com",
             projectId: "the-radical-pixel",
@@ -51,17 +51,17 @@
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        var db = firebase.firestore();
 
-        const grid = document.getElementById('grid');
-        const status = document.getElementById('status');
-        const colorPicker = document.getElementById('color-picker');
+        var grid = document.getElementById('grid');
+        var status = document.getElementById('status');
+        var colorPicker = document.getElementById('color-picker');
 
         // Cargar el estado inicial de los píxeles
         db.collection("pixels").get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                const pixelData = doc.data();
-                const pixelElement = document.querySelector(`.pixel[data-id='${doc.id}']`);
+                var pixelData = doc.data();
+                var pixelElement = document.querySelector(`.pixel[data-id='${doc.id}']`);
                 if (pixelElement) {
                     pixelElement.style.backgroundColor = pixelData.color;
                 }
@@ -69,13 +69,13 @@
         });
 
         // Crear la cuadrícula de píxeles
-        for (let i = 0; i < 1000000; i++) {
-            const pixel = document.createElement('div');
+        for (var i = 0; i < 1000000; i++) {
+            var pixel = document.createElement('div');
             pixel.classList.add('pixel');
             pixel.setAttribute('data-id', i);
-            pixel.addEventListener('click', async () => {
+            pixel.addEventListener('click', async function() {
                 if (confirm('Do you want to buy this pixel for 0.01 ETH?')) {
-                    await buyPixel(pixel, colorPicker.value);
+                    await buyPixel(this, colorPicker.value);
                 }
             });
             grid.appendChild(pixel);
@@ -83,16 +83,16 @@
 
         async function buyPixel(pixel, color) {
             if (typeof window.ethereum !== 'undefined') {
-                const web3 = new Web3(window.ethereum);
+                var web3 = new Web3(window.ethereum);
                 try {
                     await window.ethereum.enable();
-                    const accounts = await web3.eth.getAccounts();
-                    const from = accounts[0];
-                    const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
+                    var accounts = await web3.eth.getAccounts();
+                    var from = accounts[0];
+                    var value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
 
                     status.innerText = 'Transaction in progress...';
 
-                    const transaction = await web3.eth.sendTransaction({
+                    var transaction = await web3.eth.sendTransaction({
                         from,
                         to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D', // Tu dirección de Ethereum
                         value
