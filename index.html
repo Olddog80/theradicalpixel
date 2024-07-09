@@ -111,11 +111,12 @@
                 } catch (error) {
                     if (error.code === 4001) {
                         alert('Transaction rejected by user.');
+                        status.innerText = 'Transaction rejected by user.';
                     } else {
                         console.error('Transaction failed:', error);
                         alert('Transaction failed. See console for details.');
+                        status.innerText = 'Transaction failed';
                     }
-                    status.innerText = 'Transaction failed';
                 }
             } else {
                 alert('MetaMask is not installed. Please install MetaMask to buy pixels.');
