@@ -85,16 +85,11 @@
         }
 
         async function buyPixel(pixel, color) {
-            if (typeof window.ethereum !== 'undefined' || (typeof window.web3 !== 'undefined' && window.web3.currentProvider)) {
-                const provider = window.ethereum || window.web3.currentProvider;
-                const web3 = new Web3(provider);
-
-                try {
-                    if (provider.request) {
-                        await provider.request({ method: 'eth_requestAccounts' });
-                    } else {
-                        await web3.eth.getAccounts();
-                    }
+            try {
+                const provider = await detectEthereumProvider();
+                if (provider) {
+                    const web3 = new Web3(provider);
+                    await provider.request({ method: 'eth_requestAccounts' });
                     const accounts = await web3.eth.getAccounts();
                     const from = accounts[0];
                     const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
@@ -117,20 +112,30 @@
 
                     status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
-                } catch (error) {
-                    if (error.code === 4001) {
-                        alert('Transaction rejected by user.');
-                        status.innerText = 'Transaction rejected by user.';
-                    } else {
-                        console.error('Transaction failed:', error);
-                        alert('Transaction failed. See console for details.');
-                        status.innerText = 'Transaction failed';
-                    }
+                } else {
+                    alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
+                    status.innerText = 'No Ethereum wallet detected';
                 }
-            } else {
-                alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
-                status.innerText = 'No Ethereum wallet detected';
+            } catch (error) {
+                if (error.code === 4001) {
+                    alert('Transaction rejected by user.');
+                    status.innerText = 'Transaction rejected by user.';
+                } else {
+                    console.error('Transaction failed:', error);
+                    alert('Transaction failed. See console for details.');
+                    status.innerText = 'Transaction failed';
+                }
             }
+        }
+
+        async function detectEthereumProvider() {
+            if (window.ethereum) {
+                return window.ethereum;
+            }
+            if (window.web3 && window.web3.currentProvider) {
+                return window.web3.currentProvider;
+            }
+            return null;
         }
     </script>
 </body>
