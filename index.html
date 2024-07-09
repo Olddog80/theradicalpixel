@@ -82,24 +82,24 @@
         }
 
         async function buyPixel(pixel, color) {
-            if (typeof window.ethereum !== 'undefined') {
-                var web3 = new Web3(window.ethereum);
+            if (typeof window.ethereum !== 'undefined' || typeof window.web3 !== 'undefined') {
+                const provider = window['ethereum'] || window.web3.currentProvider;
+                const web3 = new Web3(provider);
+
                 try {
-                    await window.ethereum.enable();
-                    var accounts = await web3.eth.getAccounts();
-                    var from = accounts[0];
-                    var value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
+                    await provider.request({ method: 'eth_requestAccounts' });
+                    const accounts = await web3.eth.getAccounts();
+                    const from = accounts[0];
+                    const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
 
                     status.innerText = 'Transaction in progress...';
 
-                    // Enviar transacción a Ethereum
-                    var transaction = await web3.eth.sendTransaction({
+                    const transaction = await web3.eth.sendTransaction({
                         from,
                         to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D', // Tu dirección de Ethereum
                         value
                     });
 
-                    // Cambiar el color del pixel
                     pixel.style.backgroundColor = color; // Marcar el pixel como comprado
 
                     // Guardar el estado del pixel en Firestore
@@ -111,20 +111,18 @@
                     status.innerText = 'Transaction successful!';
                     console.log('Transaction successful:', transaction);
                 } catch (error) {
-                    // Manejar el error si el usuario rechaza la transacción
                     if (error.code === 4001) {
                         alert('Transaction rejected by user.');
                         status.innerText = 'Transaction rejected by user.';
                     } else {
-                        // Manejar otros errores de transacción
                         console.error('Transaction failed:', error);
                         alert('Transaction failed. See console for details.');
                         status.innerText = 'Transaction failed';
                     }
                 }
             } else {
-                alert('MetaMask is not installed. Please install MetaMask to buy pixels.');
-                status.innerText = 'MetaMask is not installed';
+                alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
+                status.innerText = 'No Ethereum wallet detected';
             }
         }
     </script>
