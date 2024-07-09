@@ -9,22 +9,32 @@
             display: grid;
             grid-template-columns: repeat(1000, 1px);
             grid-template-rows: repeat(1000, 1px);
+            gap: 1px;
         }
         .pixel {
             width: 1px;
             height: 1px;
+            background-color: #fff;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
-    <div class="grid">
-        <script>
-            for(let i = 0; i < 1000000; i++) {
-                var pixel = document.createElement('div');
-                pixel.classList.add('pixel');
-                document.querySelector('.grid').appendChild(pixel);
-            }
-        </script>
-    </div>
+    <h1>The Radical Pixel</h1>
+    <div class="grid" id="grid"></div>
+
+    <script>
+        const grid = document.getElementById('grid');
+
+        for (let i = 0; i < 1000000; i++) {
+            const pixel = document.createElement('div');
+            pixel.classList.add('pixel');
+            pixel.addEventListener('click', () => {
+                const currentColor = pixel.style.backgroundColor;
+                pixel.style.backgroundColor = currentColor === 'black' ? 'white' : 'black';
+            });
+            grid.appendChild(pixel);
+        }
+    </script>
 </body>
 </html>
