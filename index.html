@@ -73,9 +73,9 @@
             const pixel = document.createElement('div');
             pixel.classList.add('pixel');
             pixel.setAttribute('data-id', i);
-            pixel.addEventListener('click', () => {
+            pixel.addEventListener('click', async () => {
                 if (confirm('Do you want to buy this pixel for 0.01 ETH?')) {
-                    buyPixel(pixel, colorPicker.value);
+                    await buyPixel(pixel, colorPicker.value);
                 }
             });
             grid.appendChild(pixel);
