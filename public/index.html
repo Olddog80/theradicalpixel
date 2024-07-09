@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Radical Pixel</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(1000, 1px);
+            grid-template-rows: repeat(1000, 1px);
+            gap: 1px;
+        }
+        .pixel {
+            width: 1px;
+            height: 1px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        #status {
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        #color-picker {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>The Radical Pixel</h1>
+    <div id="status">Ready</div>
+    <input type="color" id="color-picker" value="#000000">
+    <div class="grid" id="grid"></div>
+
+    <!-- Incluir Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.2.11/dist/web3.min.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyBZ3PkYz4fA8Rof6ST6RNG0ddvzGMmBh60",
+            authDomain: "the-radical-pixel.firebaseapp.com",
+            projectId: "the-radical-pixel",
+            storageBucket: "the-radical-pixel.appspot.com",
+            messagingSenderId: "810109742198",
+            appId: "1:810109742198:web:ce4dd4e2143e8dcebd8357",
+            measurementId: "G-8S4QCMP82G"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+
+        var grid = document.getElementById('grid');
+        var status = document.getElementById('status');
+        var colorPicker = document.getElementById('color-picker');
+
+        // Cargar el estado inicial de los píxeles
+        db.collection("pixels").get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                var pixelData = doc.data();
+                var pixelElement = document.querySelector(`.pixel[data-id='${doc.id}']`);
+                if (pixelElement) {
+                    pixelElement.style.backgroundColor = pixelData.color;
+                }
+            });
+        }).catch((error) => {
+            console.error("Error getting pixel data:", error);
+            status.innerText = 'Error loading pixel data';
+        });
+
+        // Crear la cuadrícula de píxeles
+        for (var i = 0; i < 1000000; i++) {
+            var pixel = document.createElement('div');
+            pixel.classList.add('pixel');
+            pixel.setAttribute('data-id', i);
+            pixel.addEventListener('click', async function() {
+                if (confirm('Do you want to buy this pixel for 0.01 ETH?')) {
+                    await buyPixel(this, colorPicker.value);
+                }
+            });
+            grid.appendChild(pixel);
+        }
+
+        async function buyPixel(pixel, color) {
+            if (typeof window.ethereum !== 'undefined' || (typeof window.web3 !== 'undefined' && window.web3.currentProvider)) {
+                const provider = window.ethereum || window.web3.currentProvider;
+                const web3 = new Web3(provider);
+
+                try {
+                    if (provider.request) {
+                        await provider.request({ method: 'eth_requestAccounts' });
+                    } else {
+                        await web3.eth.getAccounts();
+                    }
+                    const accounts = await web3.eth.getAccounts();
+                    const from = accounts[0];
+                    const value = web3.utils.toWei('0.01', 'ether'); // Precio por pixel
+
+                    status.innerText = 'Transaction in progress...';
+
+                    const transaction = await web3.eth.sendTransaction({
+                        from,
+                        to: '0x625d378089A5a843e772c6a144DDdd7c02F78B3D', // Tu dirección de Ethereum
+                        value
+                    });
+
+                    pixel.style.backgroundColor = color; // Marcar el pixel como comprado
+
+                    // Guardar el estado del pixel en Firestore
+                    await db.collection("pixels").doc(pixel.getAttribute('data-id')).set({
+                        color: color,
+                        owner: from
+                    });
+
+                    status.innerText = 'Transaction successful!';
+                    console.log('Transaction successful:', transaction);
+                } catch (error) {
+                    if (error.code === 4001) {
+                        alert('Transaction rejected by user.');
+                        status.innerText = 'Transaction rejected by user.';
+                    } else {
+                        console.error('Transaction failed:', error);
+                        alert('Transaction failed. See console for details.');
+                        status.innerText = 'Transaction failed';
+                    }
+                }
+            } else {
+                alert('No Ethereum wallet detected. Please install MetaMask or another wallet.');
+                status.innerText = 'No Ethereum wallet detected';
+            }
+        }
+    </script>
+</body>
+</html>
